@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthdayyyy OSANA</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: Arial, sans-serif;
+        }
+
+        #video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            object-fit: cover;
+            pointer-events: none;
+        }
+
+        #play-button, #happy-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.8);
+            color: #000;
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s, transform 0.3s;
+            z-index: 10; 
+        }
+
+        #happy-button {
+            top: 70%;
+            display: none;
+        }
+
+        #play-button:hover, #happy-button:hover {
+            background-color: rgba(255, 255, 255, 1);
+            transform: translate(-50%, -50%) scale(1.05);
+        }
+
+        .image-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .image-container img {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            opacity: 0.8;
+            animation: move 5s infinite linear;
+        }
+
+        @keyframes move {
+            0% {
+                transform: translateX(0) translateY(0);
+            }
+            50% {
+                transform: translateX(100vw) translateY(100vh);
+            }
+            100% {
+                transform: translateX(-100vw) translateY(-100vh);
+            }
+        }
+    </style>
+</head>
+<body>
+    <video id="video-background" muted loop>
+        <source src="Osana.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    <audio id="audio-background" loop>
+        <source src="Osana.mp3" type="audio/mp3">
+        Your browser does not support the audio tag.
+    </audio>
+
+    <button id="play-button">Tap to Start</button>
+
+    <button id="happy-button">HAPPY BIRTHDAY</button>
+
+    <div id="image-container" class="image-container"></div>
+
+    <script>
+        const video = document.getElementById('video-background');
+        const audio = document.getElementById('audio-background');
+        const playButton = document.getElementById('play-button');
+        const happyButton = document.getElementById('happy-button');
+        const imageContainer = document.getElementById('image-container');
+
+        const imageUrls = ['g1.jpg', 'g2.jpg', 'g3.jpg', 'g4.jpg'];
+
+        function createImages() {
+            for (let i = 0; i < 100; i++) {
+                const img = document.createElement('img');
+                img.src = imageUrls[Math.floor(Math.random() * imageUrls.length)];
+                img.style.left = `${Math.random() * 100}vw`;
+                img.style.top = `${Math.random() * 100}vh`;
+                img.style.transform = `scale(${Math.random() * 0.5 + 0.5})`;
+                img.style.animationDuration = `${Math.random() * 5 + 5}s`; 
+                img.style.animationDelay = `${Math.random() * 5}s`; 
+                imageContainer.appendChild(img);
+            }
+        }
+
+        playButton.addEventListener('click', () => {
+            video.play();
+            audio.play();
+            playButton.style.display = 'none';
+            imageContainer.style.opacity = '1';
+            createImages();
+        });
+
+        video.addEventListener('timeupdate', () => {
+            if (video.currentTime >= video.duration - 3) {
+                happyButton.style.display = 'block';
+            }
+        });
+
+        happyButton.addEventListener('click', () => {
+            window.location.href = 'P3.html'; 
+        });
+    </script>
+</body>
+</html>

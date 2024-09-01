@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>START</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        #video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            object-fit: cover;
+            pointer-events: none;
+        }
+
+        #game-container {
+            display: flex;
+            width: 90vw;
+            height: 90vh;
+            perspective: 1500px;
+            position: relative;
+            overflow: hidden;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+
+        .lane {
+            flex: 1;
+            margin: 0 2px;
+            background-color: rgba(255, 255, 255, 0.1);
+            position: relative;
+            transform-origin: bottom;
+            transform: rotateX(60deg) translateZ(-300px) scaleY(1.5);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .note {
+            width: 80%;
+            height: 60px;
+            background-color: #1db954;
+            position: absolute;
+            left: 10%;
+            top: -60px;
+            transform: rotateX(-60deg);
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            transition: box-shadow 0.3s, transform 0.3s, background-color 0.3s;
+            cursor: pointer;
+        }
+
+        .hit {
+            background-color: #ff0000;
+        }
+
+        .shine {
+            box-shadow: 0 0 30px 10px #fff, 0 0 50px 30px #1db954;
+            transform: scale(1.2);
+            background-color: #ff1493;
+        }
+
+        #enter-button {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px 40px;
+            font-size: 30px;
+            background-color: #ff1493;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(255, 20, 147, 0.5);
+            animation: pulsate 1s infinite;
+            z-index: 2;
+        }
+
+        @keyframes pulsate {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <video id="video-background" autoplay loop muted>
+        <source src="Miku.mp4" type="video/mp4">
+        Tu navegador no soporta la etiqueta de video.
+    </video>
+
+    <audio id="audio-background" autoplay loop>
+        <source src="miku.mp3" type="audio/mp3">
+        Tu navegador no soporta la etiqueta de audio.
+    </audio>
+
+    <div id="game-container">
+        <div class="lane" id="lane1"></div>
+        <div class="lane" id="lane2"></div>
+        <div class="lane" id="lane3"></div>
+        <div class="lane" id="lane4"></div>
+    </div>
+
+    <button id="enter-button">HAPPY BIRTHDAY</button>
+
+    <script>
+        const audio = document.getElementById('audio-background');
+        const enterButton = document.getElementById('enter-button');
+        let clickCount = 0; 
+
+        audio.volume = 1;
+        audio.play().catch(error => {
+            console.log('Error al intentar reproducir el audio automáticamente:', error);
+            document.addEventListener('click', () => {
+                audio.play();
+            }, { once: true });
+        });
+
+        const lanes = document.querySelectorAll('.lane');
+        const noteSpeed = 3;
+
+        function createNote() {
+            const laneIndex = Math.floor(Math.random() * lanes.length);
+            const note = document.createElement('div');
+            note.classList.add('note');
+            
+            note.addEventListener('click', () => {
+                note.classList.add('shine');
+                clickCount++;
+                setTimeout(() => note.remove(), 300);
+
+                if (clickCount >= 3) {
+                    stopGame();
+                }
+            });
+
+            lanes[laneIndex].appendChild(note);
+        }
+
+        function moveNotes() {
+            const notes = document.querySelectorAll('.note');
+            notes.forEach(note => {
+                let top = parseInt(note.style.top || 0);
+                top += noteSpeed;
+                note.style.top = top + 'px';
+
+                if (top > window.innerHeight) {
+                    note.remove();
+                }
+            });
+        }
+
+        function gameLoop() {
+            moveNotes();
+            if (Math.random() < 0.05) {
+                createNote();
+            }
+            if (gameRunning) {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        let gameRunning = true;
+
+        function stopGame() {
+            gameRunning = false;
+            document.querySelectorAll('.note').forEach(note => note.remove());
+            enterButton.style.display = 'block';
+        }
+
+        enterButton.addEventListener('click', () => {
+            window.location.href = 'P.html'; 
+        });
+
+        gameLoop();
+
+        document.addEventListener('keydown', (event) => {
+            const key = event.key;
+            let laneIndex;
+
+            switch (key) {
+                case 'a':
+                    laneIndex = 0;
+                    break;
+                case 's':
+                    laneIndex = 1;
+                    break;
+                case 'd':
+                    laneIndex = 2;
+                    break;
+                case 'f':
+                    laneIndex = 3;
+                    break;
+                default:
+                    return;
+            }
+
+            const lane = lanes[laneIndex];
+            const note = lane.querySelector('.note');
+            if (note) {
+                const noteTop = parseInt(note.style.top || 0);
+                if (noteTop > window.innerHeight * 0.20 && noteTop < window.innerHeight * 0.85) {
+                    note.classList.add('hit', 'shine'); 
+                    clickCount++;
+                    setTimeout(() => note.remove(), 100);
+                    if (clickCount >= 3) {
+                        stopGame();
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
